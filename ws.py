@@ -29,6 +29,7 @@ def try_out():
 </html>
 '''.format(dt=datetime.datetime.utcnow())
 
+
 @route('/bottle/bad_soap', method='ANY')
 def bad_soap():
     # response.headers['Content-Type'] = 'xml/application'
@@ -96,7 +97,7 @@ def server_static(filepath):
 def do_upload(**kw):
 
     # FIXME: [debug] remove
-    # time.sleep(5)  
+    # time.sleep(5)
 
     # category = request.forms.get('category')
     saved_paths = []
@@ -135,5 +136,4 @@ def do_upload(**kw):
 
 
 # run(host='localhost', port=8880)
-run(host='0.0.0.0', port=8880)
-
+run(host='0.0.0.0', port=8880)  # принимаем коннекты и с главного хоста на текущую виртуалку
