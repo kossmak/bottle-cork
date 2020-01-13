@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import datetime
 import json
 import os
 import socket
+import time
 from pprint import pformat
 
 from bottle import route, template, run, request, response, post, static_file
@@ -14,10 +16,24 @@ TIMEOUT = 60
 # socket.setdefaulttimeout(TIMEOUT)
 
 
+@route('/bottle/try_out', method='ANY')
+def try_out():
+    response.content_type = 'text/html'
+    return u'''\
+<html>
+<title>Bottle-cork is opened</title>
+  <body>
+    <div><b>OK</b></div>
+    <div>utc: {dt}</div>
+  </body>
+</html>
+'''.format(dt=datetime.datetime.utcnow())
+
 @route('/bottle/bad_soap', method='ANY')
 def bad_soap():
     # response.headers['Content-Type'] = 'xml/application'
     response.content_type = 'xml/application'
+    response.status = 403
     return u'''\
 <?xml version="1.0" encoding="UTF-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -71,7 +87,6 @@ def index_error_rs(**kw):
 
 @route('/bottle/static/<filepath:path>')
 def server_static(filepath):
-    import time
     time.sleep(1)
     # time.sleep(TIMEOUT-50)
     return static_file(filepath, root=BOTTLE_STATIC_DIR)
@@ -79,6 +94,10 @@ def server_static(filepath):
 
 @route('/bottle/upload', method='POST')
 def do_upload(**kw):
+
+    # FIXME: [debug] remove
+    # time.sleep(5)  
+
     # category = request.forms.get('category')
     saved_paths = []
     if not request.files:
