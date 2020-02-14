@@ -7,7 +7,7 @@ import socket
 import time
 from pprint import pformat
 
-from bottle import route, template, run, request, response, post, static_file
+import bottle
 
 BOTTLE_STATIC_DIR = '/home/kossmak/proj/bottle-cork/static'
 # TIMEOUT = 62
@@ -17,17 +17,17 @@ TIMEOUT = 60
 
 
 def _log_rq_data():
-    rq_body = request.body.read()
-    rq_cookies = pformat(request.cookies)
+    rq_body = bottle.request.body.read()
+    rq_cookies = pformat(bottle.request.cookies)
     print "\n---------"
     print "request: ", rq_body
     print "cookie: ", rq_cookies
 
 
-@route('/bottle/try_out', method='ANY')
+@bottle.route('/bottle/try_out', method='ANY')
 def try_out():
     _log_rq_data()
-    response.content_type = 'text/html'
+    bottle.response.content_type = 'text/html'
     return u'''\
 <html>
 <title>Bottle-cork is opened</title>
@@ -39,11 +39,11 @@ def try_out():
 '''.format(dt=datetime.datetime.utcnow())
 
 
-@route('/bottle/bad_soap', method='ANY')
+@bottle.route('/bottle/bad_soap', method='ANY')
 def bad_soap():
     # response.headers['Content-Type'] = 'xml/application'
-    response.content_type = 'xml/application'
-    response.status = 403
+    bottle.response.content_type = 'xml/application'
+    bottle.response.status = 403
     return u'''\
 <?xml version="1.0" encoding="UTF-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -55,10 +55,10 @@ def bad_soap():
 '''
 
 
-@post('/bottle/crt/reserve')
+@bottle.post('/bottle/crt/reserve')
 def index(**kw):
     _log_rq_data()
-    response.content_type = 'application/json'
+    bottle.response.content_type = 'application/json'
     result = {
         "data": {
             "reservationId": "FUPG891351"
@@ -69,10 +69,10 @@ def index(**kw):
     return json.dumps(result)
 
 
-@post('/bottle/svc/error_rs')
+@bottle.post('/bottle/svc/error_rs')
 def index_error_rs(**kw):
     _log_rq_data()
-    response.content_type = 'application/json'
+    bottle.response.content_type = 'application/json'
     result = u'''\
 {
     "isSuccess": false,
@@ -91,14 +91,14 @@ def index_error_rs(**kw):
     # return result.encode('utf-8')
 
 
-@route('/bottle/static/<filepath:path>')
+@bottle.route('/bottle/static/<filepath:path>')
 def server_static(filepath):
     time.sleep(1)
     # time.sleep(TIMEOUT-50)
-    return static_file(filepath, root=BOTTLE_STATIC_DIR)
+    return bottle.static_file(filepath, root=BOTTLE_STATIC_DIR)
 
 
-@route('/bottle/upload', method='POST')
+@bottle.route('/bottle/upload', method='POST')
 def do_upload(**kw):
 
     # FIXME: [debug] remove
@@ -106,11 +106,11 @@ def do_upload(**kw):
 
     # category = request.forms.get('category')
     saved_paths = []
-    if not request.files:
+    if not bottle.request.files:
         raise ValueError('Bad request format. No files.')
-    for param_name in request.files:
+    for param_name in bottle.request.files:
         # upload = request.files.get('upload')
-        uploaded_file = request.files.get(param_name)
+        uploaded_file = bottle.request.files.get(param_name)
         if not uploaded_file:
             continue
         name, ext = os.path.splitext(uploaded_file.filename)
@@ -140,5 +140,5 @@ def do_upload(**kw):
     return "Files successfully saved to \n'{0}'\n".format(pformat(saved_paths))
 
 
-# run(host='localhost', port=8880)
-run(host='0.0.0.0', port=8880)  # принимаем коннекты и с главного хоста на текущую виртуалку
+# bottle.run(host='localhost', port=8880)
+bottle.run(host='0.0.0.0', port=8880)  # принимаем коннекты и с главного хоста на текущую виртуалку
