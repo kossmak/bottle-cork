@@ -16,8 +16,17 @@ TIMEOUT = 60
 # socket.setdefaulttimeout(TIMEOUT)
 
 
+def _log_rq_data():
+    rq_body = request.body.read()
+    rq_cookies = pformat(request.cookies)
+    print "\n---------"
+    print "request: ", rq_body
+    print "cookie: ", rq_cookies
+
+
 @route('/bottle/try_out', method='ANY')
 def try_out():
+    _log_rq_data()
     response.content_type = 'text/html'
     return u'''\
 <html>
@@ -48,9 +57,7 @@ def bad_soap():
 
 @post('/bottle/crt/reserve')
 def index(**kw):
-    print "\n---------"
-    print "request: ", request.body.read()
-    print "cookie: ", pformat(request.cookies)
+    _log_rq_data()
     response.content_type = 'application/json'
     result = {
         "data": {
@@ -64,9 +71,7 @@ def index(**kw):
 
 @post('/bottle/svc/error_rs')
 def index_error_rs(**kw):
-    print "\n---------"
-    print "request: ", request.body.read()
-    print "cookie: ", pformat(request.cookies)
+    _log_rq_data()
     response.content_type = 'application/json'
     result = u'''\
 {
