@@ -24,6 +24,15 @@ def _log_rq_data():
     print "cookie: ", rq_cookies
 
 
+@bottle.route('/bottle/timeout', method='ANY')
+def time_out(*args, **kw):
+    _log_rq_data()
+
+    limit = 30
+    time.sleep(limit)
+    return 'time_out{}'.format(limit)
+
+
 @bottle.route('/bottle/try_out', method='ANY')
 def try_out():
     _log_rq_data()
@@ -78,9 +87,9 @@ def index_error_rs(**kw):
     "isSuccess": false,
     "errors": [
         {
-            "message": "Не было найдено ваучеров по входящим параметрам",
+            "message": "Не было найдено сертификатов по входящим параметрам",
             "code": "1001000333",
-            "dbg": "SiebelNoCertificatesFound",
+            "dbg": "NoCertificatesFound",
             "value": null
         }
     ],
